@@ -18,8 +18,8 @@ public class Frame extends JPanel implements ActionListener, MouseListener, KeyL
 	int score = 0;
 	int highScore = 0;
 	
-	int upCounter = 0;
-	int upCounterMax = 2;
+	//int upCounter = 0;
+	//int upCounterMax = 2;
 	
 	public static boolean gameStart = false;
 	
@@ -42,7 +42,7 @@ public class Frame extends JPanel implements ActionListener, MouseListener, KeyL
 		}
 		//WRITING RULES AND SCORE
 		g.setColor(Color.white);
-		g.drawString("Score: "+ score, 30, 45);
+		g.drawString("Score: "+ score, 45, 35);
 		//draws instructions to play
 		
 		
@@ -64,7 +64,7 @@ public class Frame extends JPanel implements ActionListener, MouseListener, KeyL
 		
 		//HIGH SCORE LABLE
 		g.setColor(Color.white);
-		g.drawString("High score: " + highScore, 100, 45 );
+		g.drawString("High score: " + highScore, 115, 35 );
 	}
 		
 		/*
