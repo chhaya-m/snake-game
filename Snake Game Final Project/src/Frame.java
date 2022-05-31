@@ -110,9 +110,12 @@ public class Frame extends JPanel implements ActionListener, MouseListener, KeyL
 		g.setFont(new Font("Baskerville", Font.PLAIN, blocksOfBoard * 3 / 5));
 		g.drawString("" + score, boardWidth - blocksOfBoard / 2, blocksOfBoard / 5 * 3);
 		g.setFont(new Font("Baskerville", Font.PLAIN, blocksOfBoard / 3));	
-		g.drawString("click space bar to start game", boardWidth - 4 * blocksOfBoard , boardHeight - blocksOfBoard / 2 * 3);
-		g.drawString("        hold on return key to display instructions panel", boardWidth - 7 * blocksOfBoard, boardHeight - blocksOfBoard / 3 * 3);
-				
+		g.drawString("click space bar to start game", boardWidth - 5 * blocksOfBoard , boardHeight - blocksOfBoard / 2 * 3);
+		g.drawString("        hold on return key to display instructions panel", boardWidth - 8 * blocksOfBoard, boardHeight - blocksOfBoard / 3 * 3);
+		g.drawString("   exit game to restart", boardWidth - 4 * blocksOfBoard, boardHeight - blocksOfBoard / 5 * 3);
+
+		
+		
 		//check if the score is greater than the current high score and switch if applicable
 		if(highScore < score) {
 			highScore = score;
@@ -127,7 +130,7 @@ public class Frame extends JPanel implements ActionListener, MouseListener, KeyL
 			g.setFont(new Font("Baskerville", Font.BOLD, blocksOfBoard * 35 / 100)); 
 			g.drawString("instructions to play the snake game", blocksOfBoard, blocksOfBoard);
 			g.setColor(new Color(117, 88, 154));
-			g.setFont(new Font("Baskerville", Font.PLAIN, blocksOfBoard * 2 / 7)); 
+			g.setFont(new Font("Baskerville", Font.PLAIN, blocksOfBoard * 2 / 9)); 
 			g.drawString("use the WASD keys or the ARROW keys to change direction of snake", blocksOfBoard, blocksOfBoard * 3 / 2);
 			g.drawString("use the SPACE bar to start the snake game", blocksOfBoard, blocksOfBoard * 2);
 			g.drawString("use the NUMBER keys to change the speed of the snake before a game:", blocksOfBoard, blocksOfBoard * 5 / 2);
