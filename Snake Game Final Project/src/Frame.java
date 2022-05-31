@@ -1,5 +1,8 @@
+
+
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
@@ -9,93 +12,216 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
 public class Frame extends JPanel implements ActionListener, MouseListener, KeyListener {
 	
+	//for the creation of the board and the needed parameters 
+	static int boardWidth = 700;
+	static int boardHeight = 700;
+	static int blocksOfBoard = boardWidth/10; //should be width or height/ divided by 10
+	static int unitsOfBoard = boardWidth / (blocksOfBoard) * 10;
+	//public static int[][] board = new int[unitsOfBoard][unitsOfBoard];
+	public int[] xBoard = new int[unitsOfBoard]; //makes the 2d array with separate
+	public int[] yBoard = new int[unitsOfBoard]; //x rows and y columns
+	
+	//score variables
 	int score = 0;
 	int highScore = 0;
 	
-	//int upCounter = 0;
-	//int upCounterMax = 2;
+	//needed for the randomization of the Food
+	int xFood = 0;
+	int yFood = 0;
+	public Random r = new Random();
 	
-	public static boolean gameStart = false;
+	//speed of the snake probably using timer 
+	int speed = 300;
+	int d = 0;
 	
+	//timer
+	Timer timer;
+ 
+	//whether or not the game is running 
+	public static boolean playing = false; 
 	
-	//CREATING THE OBJECTS
-	Board bg = new Board(0, 0);
-	Apple apple = new Apple (90, 87);
+	//whether or not instructions are shown
+	public static boolean instructions = false;
+	
+	//create the variable to initialize frame
+	static JFrame f = new JFrame("we love snakes");
+	
+	//objects(background)
+	Background	bg = new Background(0, 0);
+	
+	//size of the snake
+	int snakeLength = 3;
+	
+	//to start the game
+	public void startGame() {
+		playing = true; 
+		//randomize apple location 
+		makeNewFood();
+		//timer to make the snake move - this determines speed of snake
+		Timer t = new Timer(speed, this);
+		t.start();
+	}
+	
+	//play game again
+	public void newGame() {
+		playing = true; 
+		makeNewFood();
+		Timer t = new Timer(speed, this);
+		t.start();
+	}
 
-	//PAINTING OBJECTS
 	public void paint(Graphics g) {
 		super.paintComponent(g);
+		//paint the background from the background class
 		bg.paint(g);
-		apple.paint(g);
 		
-		
-	
-		//reset game when dino touches tree
-		if(gameStart == false) {
-			score = 0;
+		//draws the snake and the 
+		if(playing == true) {
+			
+			//color of the Food(light pink)
+			g.setColor(new Color(244, 183, 233));
+			//create the Food, which is a pink circle
+			g.fillOval(xFood, yFood, blocksOfBoard, blocksOfBoard); // *3/4
+			
+			//make the snake
+			for(int i = 0; i < snakeLength; i++) {
+				//the head of the snake is a darker color than the body
+				//creation of the head of the snake which is a special color 
+				if(i == 0) {
+					g.setColor(new Color(158,121,200)); //purple square for the head
+					g.fillRect(xBoard[i] + blocksOfBoard, yBoard[i] + blocksOfBoard, blocksOfBoard, blocksOfBoard);
+				//creation of the body of the snake
+				}else {
+					g.setColor(new Color(206, 189, 227)); //light purple square for the body
+					g.fillRect(xBoard[i] + blocksOfBoard, yBoard[i] + blocksOfBoard, blocksOfBoard, blocksOfBoard);
+				}		
+			}
 		}
-		//WRITING RULES AND SCORE
-		g.setColor(Color.white);
-		g.drawString("Score: "+ score, 45, 35);
-		//draws instructions to play
 		
-		
-		/*
-		//COLLISION, IF COLLISION OCCURS, GAME IS OVER
-		Rectangle o2b = new Rectangle(coin.x+6, coin.y, 40, 40); //change this for dif picture by drawing rect
-		Rectangle dRect1 = new Rectangle(dino.x, dino.y, 54, 72);
-		Rectangle o1b = new Rectangle(tree.x, tree.y, 50, 300);
-		System.out.println(dRect1.intersects(o1b));
-		if(dRect1.intersects(o1b)) {
-			gameStart = false;	
-		}
-		*/
-		
-		//CHECKING FOR NEW HIGH SCORE, IF APLICABLE, REPLACE HIGH SCORE WITH NEW HIGH SCORE
+		//draws score label in top right hand corner
+		g.setColor(new Color(117, 88, 154));
+		g.setFont(new Font("Baskerville", Font.PLAIN, blocksOfBoard * 3 / 5));
+		g.drawString("" + score, boardWidth - blocksOfBoard / 2, blocksOfBoard / 5 * 3);
+		g.setFont(new Font("Baskerville", Font.PLAIN, blocksOfBoard / 3));	
+		g.drawString("click space bar to start game", boardWidth - 4 * blocksOfBoard , boardHeight - blocksOfBoard / 2 * 3);
+		g.drawString("        hold on return key to display instructions panel", boardWidth - 7 * blocksOfBoard, boardHeight - blocksOfBoard / 3 * 3);
+				
+		//check if the score is greater than the current high score and switch if applicable
 		if(highScore < score) {
 			highScore = score;
 		}
+		//g.drawString("high: " + highScore, blocksOfBoard / 2, blocksOfBoard / 10 * 6);
 		
-		//HIGH SCORE LABLE
-		g.setColor(Color.white);
-		g.drawString("High score: " + highScore, 115, 35 );
+		//instruction panel code
+		if(instructions == true) {
+			g.setColor(new Color(229, 221, 233));
+			g.fillRect(blocksOfBoard * 1 / 2, blocksOfBoard * 1 / 2, blocksOfBoard * 9, blocksOfBoard * 9);
+			g.setColor(new Color(105, 76, 143));
+			g.setFont(new Font("Baskerville", Font.BOLD, blocksOfBoard * 35 / 100)); 
+			g.drawString("instructions to play the snake game", blocksOfBoard, blocksOfBoard);
+			g.setColor(new Color(117, 88, 154));
+			g.setFont(new Font("Baskerville", Font.PLAIN, blocksOfBoard * 2 / 7)); 
+			g.drawString("use the WASD keys or the ARROW keys to change direction of snake", blocksOfBoard, blocksOfBoard * 3 / 2);
+			g.drawString("use the SPACE bar to start the snake game", blocksOfBoard, blocksOfBoard * 2);
+			g.drawString("use the NUMBER keys to change the speed of the snake before a game:", blocksOfBoard, blocksOfBoard * 5 / 2);
+			g.drawString("1: fast", blocksOfBoard * 3 / 2, blocksOfBoard * 3);
+			g.drawString("2: normal", blocksOfBoard * 3 / 2, blocksOfBoard * 7 / 2);
+			g.drawString("3: slow", blocksOfBoard * 3 / 2, blocksOfBoard * 4);
+			g.drawString("use PLUS sign key to increase the size of the board", blocksOfBoard, blocksOfBoard * 9 / 2);
+			g.drawString("use MINUS sign key to decrease the size of the board", blocksOfBoard, blocksOfBoard * 5);
+			g.drawString("use SHIFT key to reset entire game", blocksOfBoard, blocksOfBoard * 11 / 2);
+			g.drawString("hold on RETURN key to display instructions panel and release to hide", blocksOfBoard, blocksOfBoard * 6);
+			g.drawString("use DELETE key to reset game", blocksOfBoard, blocksOfBoard * 13 / 2);
+			
+		}
 	}
+	
+	public void makeNewFood(){
 		
-		/*
-		//COLLECTING THE COIN, IF THERE IS "COLLISION" WITH GAME, POINT INCREASE BY 1
-		if(dRect1.intersects(o2b)){
-			if(gameStart == true) {
-				score++;
-				//coin.x += 700;
-			}else {
-				
-			}
+		//randomizes the location of the new food to fit within each of the blocks
+		//x coordinate for the apple
+		xFood = r.nextInt(boardWidth/blocksOfBoard) * blocksOfBoard;
+		//y coordinate for the apple
+		yFood = r.nextInt(boardHeight/blocksOfBoard)* blocksOfBoard; 	
+		
+	}
+	
+	public void runSnake() {
+		//moving forward in whatever direction the snake is facing
+		for(int s = snakeLength; s > 0; s--) {
+			xBoard[s] = xBoard[s - 1];
+			yBoard[s] = yBoard[s - 1];
 			
 		}
 		
+		switch(d) { //cases are in the form of degrees and directions are based on degrees
+			case 0: //right
+				xBoard[0] = blocksOfBoard + xBoard[0];
+				break;
+			case 90: //up
+				yBoard[0] = -blocksOfBoard + yBoard[0];
+				break;
+			case 180: //left
+				xBoard[0] = -blocksOfBoard + xBoard[0];
+				break;
+			case 270: //down
+				yBoard[0] = blocksOfBoard + yBoard[0];
+				break;
+		}
 	}
-	*/
+	
+	public void collideWithFood() {
+		
+		//if((xBoard[0] == xFood || xBoard[0] == xFood - blocksOfBoard) && (yBoard[0] == yFood || yBoard[0] == yFood - blocksOfBoard)) {
+		if(xBoard[0] == xFood && yBoard[0] == yFood || xBoard[0] == xFood - blocksOfBoard && yBoard[0] == yFood - blocksOfBoard) {
+				score++;
+				snakeLength++;
+				makeNewFood();
+			}	
+	} 
+	
+	public void collide() {
+		
+		//snake colliding with itself 
+		for(int i = 1; i < snakeLength; i++) {
+			if(xBoard[0] == xBoard[i] && yBoard[0] == yBoard[i]) {
+				playing = false;
+			}
+		}
+		
+		//if the snake's head hits the left wall or the right wall
+		if(xBoard[0] < - blocksOfBoard || xBoard[0] > boardWidth - 2 * blocksOfBoard) {
+			playing = false;
+		}
+		
+		//if the snake's head hits the top wall or the bottom wall
+		if(yBoard[0] < - blocksOfBoard || yBoard[0] > boardHeight) {
+			playing = false;
+		}
+		
+		
+	}
 	
 	public static void main(String[] args) {
-		Frame f = new Frame();
+		new Frame();
 	}
 	
 	public Frame() {
-		JFrame f = new JFrame("snake game");
-		f.setSize(new Dimension(675, 700));
+		f.setSize(new Dimension(boardWidth, boardHeight));
 		f.setBackground(Color.black);
 		f.add(this);
 		f.setResizable(false);
 		f.setLayout(new GridLayout(1,1));
 		f.addMouseListener(this);
 		f.addKeyListener(this);
-		Timer t = new Timer(16, this);
+		Timer t = new Timer(speed, this);
 		t.start();
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.setVisible(true);
@@ -126,46 +252,121 @@ public class Frame extends JPanel implements ActionListener, MouseListener, KeyL
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub
+		if(playing == true) {
+			runSnake();
+			collide();
+			collideWithFood();
+		}
+		
+		if(playing == false) {
+			score = 0;	
+		}
+	
 		repaint();
 	}
 
 	@Override
 	public void keyPressed(KeyEvent arg0) {
 		// TODO Auto-generated method stub
-			//System.out.println(arg0.getKeyCode());
-			
-			
-			
-			//DINO JUMPING USING UP KEY
-				//if(arg0.getKeyCode() == 38) {
-					 //dino.up();
-				//}
-		
-			
-			/*	
-			if((dino.y  >= 240) && (upCounter >= upCounterMax)) {
-				upCounter = 0;
+			System.out.println(arg0.getKeyCode());
+			switch(arg0.getKeyCode()) {
+			//to start the game
+				case 32: //space bar
+					startGame();
+					break;
+					
+			//changes the size of the board
+				case 45: //minus key
+					boardWidth -= 100;
+					boardHeight -= 100;
+					blocksOfBoard -= 10;
+					f.setSize(new Dimension(boardWidth, boardHeight));
+					break;
+				case 61: //plus key
+					boardWidth += 100;
+					boardHeight += 100;
+					blocksOfBoard += 10;
+					f.setSize(new Dimension(boardWidth, boardHeight));
+					break;
+					
+			//two ways to move snake: arrows or wasd
+				case 39: //right arrow 
+					d = 0;
+					break;
+				case 68: //d key
+					d = 0;
+					break;
+				case 38: //up arrow
+					d = 90;
+					break;
+				case 87: //w key
+					d = 90;
+					break;
+				case 37: //left arrow
+					d = 180;
+					break;
+				case 65: //a key
+					d = 180;
+					break;
+				case 40: //down arrow
+					d = 270;
+					break;
+				case 83: //s key
+					d = 270;
+					break;
+					
+			//controls the desired speed of the snake in the apple
+				case 49: //number 1 key
+					speed = 150;
+					break;
+				case 50: //number 2 key
+					speed = 250;
+					break;
+				case 51: //number 3 key
+					speed = 400;
+					break;
+					
+			//shows the instruction panel
+				case 10://return key
+					instructions = true;
+					if(playing == true) {
+						playing = false;
+					}
+					break;
+					
+			//reset game back to default
+				case 8: //delete key
+					score = 0;
+					//highScore = 0;
+					playing = false;
+					speed = 250;
+					boardWidth = 700;
+					boardHeight = 700;
+					blocksOfBoard = 70;
+					f.setSize(new Dimension(boardWidth, boardHeight));
+					break;
+					
+					
 			}
-			*/
-			
-			
-			
-			
-			//STARTING GAME, PRESS SPACE BAR
-			if(arg0.getKeyCode() == 32) {
-				gameStart = true;
-				
-			}		
+
 	}
 
 	@Override
 	public void keyReleased(KeyEvent arg0) {
 		// TODO Auto-generated method stub
+		switch(arg0.getKeyCode()) {
 		
+			//when user lets go of the key, the instruction panel goes away
+			case 10: //return key
+				instructions = false;
+				playing = true;
+				break;
+				
+		}
 	}
 
 	@Override
@@ -175,5 +376,3 @@ public class Frame extends JPanel implements ActionListener, MouseListener, KeyL
 	}
 
 }
-
-
